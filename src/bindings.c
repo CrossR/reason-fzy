@@ -58,7 +58,7 @@ CAMLprim value fzy_choices_add(value vChoices, value vChoice) {
     choice_W *p = Data_custom_val(vChoices);
     choices_t *choices = p->choice;
 
-    char *choice = String_val(vChoice);
+    const char *choice = String_val(vChoice);
 
     choices_add(choices, choice);
 
