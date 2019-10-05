@@ -6,9 +6,11 @@
 #include <caml/mlvalues.h>
 #include <caml/threads.h>
 
-#include <choices.h>
+#include <match.h>
+#include <stdio.h>
 
-void temp() {
-    printf("Hello!");
+void test_match() {
+    score_t score = match("main", "packages/core/src/main.tex");
+    printf("Score was %f", score);
 };
 
