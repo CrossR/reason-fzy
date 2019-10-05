@@ -7,10 +7,10 @@
     "format": "esy dune build @fmt --auto-promote"
   },
   "esy": {
-    "build": ["refmterr dune build -p fzy"],
+    "build": ["refmterr dune build -p Fzy"],
     "buildsInSource": "_build",
     "install": [
-        "esy-installer fzy.install"
+        "esy-installer Fzy.install"
     ]
   },
   "resolutions": {

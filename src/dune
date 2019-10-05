@@ -1,6 +1,6 @@
 (library
-    (name fzy)
-    (public_name fzy)
+    (name Fzy)
+    (public_name Fzy)
     (library_flags (:include flags.sexp))
     (c_flags (:include c_flags.sexp))
     (c_names bindings)
