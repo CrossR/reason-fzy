@@ -51,16 +51,16 @@ CAMLprim value fzy_choices_init(value unit) {
     CAMLreturn(ret);
 }
 
-CAMLprim value fzy_choices_add(value vChoices, value vChoice) {
-    CAMLparam2(vChoices, vChoice);
+CAMLprim value fzy_choices_add(value vChoices, value vToAdd) {
+    CAMLparam2(vChoices, vToAdd);
     CAMLlocal1(ret);
 
     choice_W *p = Data_custom_val(vChoices);
     choices_t *choices = p->choice;
 
-    const char *choice = String_val(vChoice);
+    const char *to_add = String_val(vToAdd);
 
-    choices_add(choices, choice);
+    choices_add(choices, to_add);
 
     ret = caml_alloc_custom(&choices_custom_ops, sizeof(choice_W), 0, 1);
     memcpy(Data_custom_val(ret), &choices, sizeof(choice_W));

@@ -10,13 +10,13 @@ module ScoredResult = {
 module Choices = {
     type t = {
         buffer: string,
-        buffer_size: int,
-        capacity: int,
-        size: int,
+        buffer_size: float,
+        capacity: float,
+        size: float,
         strings: array(string),
-        results: ScoredResult.t,
-        available: int,
-        selection: int,
+        results: array(ScoredResult.t),
+        available: float,
+        selection: float,
         workerCount: int,
     };
 };
