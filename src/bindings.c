@@ -112,3 +112,4 @@ CAMLprim value fzy_choices_getscore(value vChoices, value vN) {
 
     CAMLreturn(Val_long(score));
 }
+
