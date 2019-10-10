@@ -30,7 +30,13 @@ let cclib s = ["-cclib"; s]
 
 let libPath = "\"" ^ "-L" ^ fzyLibPath ^ "\""
 
-let flags = []
+let flags =
+    match get_os with
+    | Windows -> []
+        @ ccopt(libPath)
+        @ cclib("-lpthread")
+        @ cclib("-lfzy")
+    | _ -> []
         @ ccopt(libPath)
         @ cclib("-lfzy")
 ;;
