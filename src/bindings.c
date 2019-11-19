@@ -30,11 +30,6 @@ static struct custom_operations choices_custom_ops = {
   .deserialize = custom_deserialize_default
 };
 
-void test_match() {
-    score_t score = match("main", "packages/core/src/main.tex");
-    printf("Score was %f\n", score);
-};
-
 CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
     CAMLparam2(vHaystack, vNeedle);
     CAMLlocal1(scoreList);
@@ -51,7 +46,6 @@ CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
     }
 
     const char *needle = String_val(vNeedle);
-    printf("Searching with %s as needle.\n", needle);
     choices_search(&choices, needle);
 
     scoreList = caml_alloc(nItems * Double_wosize, Double_array_tag);
@@ -62,7 +56,6 @@ CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
 
         // If the score is NaN, just store 0.
         if (score != score) {
-          printf("Score %i was nan\n", i);
           Store_double_field(scoreList, i, 0.0);
         } else {
           Store_double_field(scoreList, i, score);
