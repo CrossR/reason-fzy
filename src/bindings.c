@@ -23,7 +23,7 @@ void finalize_choice(value v) {
 
 static struct custom_operations choices_custom_ops = {
   .identifier = "choices handling",
-  .finalize = finalize_choice,
+  .finalize = custom_finalize_default,
   .compare = custom_compare_default,
   .hash = custom_hash_default,
   .serialize = custom_serialize_default,
@@ -35,81 +35,40 @@ void test_match() {
     printf("Score was %f\n", score);
 };
 
-CAMLprim value fzy_choices_init(value unit) {
-    CAMLparam0();
-    CAMLlocal1(ret);
+CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
+    CAMLparam2(vHaystack, vNeedle);
+    CAMLlocal1(scoreList);
 
-    choices_t choices;
     options_t options;
-
+    choices_t choices;
     options_init(&options);
     choices_init(&choices, &options);
 
-    ret = caml_alloc_custom(&choices_custom_ops, sizeof(choice_W), 0, 1);
-    memcpy(Data_custom_val(ret), &choices, sizeof(choice_W));
+    int nItems = Wosize_val(vHaystack);
 
-    CAMLreturn(ret);
+    for (int i = 0; i < nItems; ++i) {
+        choices_add(&choices, String_val(Field(vHaystack, i)));
+    }
+
+    const char *needle = String_val(vNeedle);
+    printf("Searching with %s as needle.\n", needle);
+    choices_search(&choices, needle);
+
+    scoreList = caml_alloc(nItems * Double_wosize, Double_array_tag);
+
+    for (int i = 0; i < nItems; ++i) {
+        double score = choices_getscore(&choices, i);
+        // printf("Score was %f\n", score);
+
+        // If the score is NaN, just store 0.
+        if (score != score) {
+          printf("Score %i was nan\n", i);
+          Store_double_field(scoreList, i, 0.0);
+        } else {
+          Store_double_field(scoreList, i, score);
+        }
+    }
+
+    choices_destroy(&choices);
+    CAMLreturn(scoreList);
 }
-
-CAMLprim value fzy_choices_add(value vChoices, value vToAdd) {
-    CAMLparam2(vChoices, vToAdd);
-    CAMLlocal1(ret);
-
-    choice_W *p = Data_custom_val(vChoices);
-    choices_t *choices = p->choice;
-
-    const char *to_add = String_val(vToAdd);
-
-    choices_add(choices, to_add);
-
-    ret = caml_alloc_custom(&choices_custom_ops, sizeof(choice_W), 0, 1);
-    memcpy(Data_custom_val(ret), &choices, sizeof(choice_W));
-
-    CAMLreturn(ret);
-}
-
-CAMLprim value fzy_choices_search(value vChoices, value vSearch) {
-    CAMLparam2(vChoices, vSearch);
-    CAMLlocal1(ret);
-
-    choice_W *p = Data_custom_val(vChoices);
-    choices_t *choices = p->choice;
-
-    char *search = String_val(vSearch);
-
-    choices_search(choices, search);
-
-    ret = caml_alloc_custom(&choices_custom_ops, sizeof(choice_W), 0, 1);
-    memcpy(Data_custom_val(ret), &choices, sizeof(choice_W));
-
-    CAMLreturn(ret);
-}
-
-CAMLprim value fzy_choices_get(value vChoices, value vN) {
-    CAMLparam2(vChoices, vN);
-    CAMLlocal1(ret);
-
-    choice_W *p = Data_custom_val(vChoices);
-    choices_t *choices = p->choice;
-
-    size_t n = (size_t) Int_val(vN);
-
-    const char *result = choices_get(choices, n);
-
-    Store_field(ret, 0, caml_copy_string(result));
-    CAMLreturn(ret);
-}
-
-CAMLprim value fzy_choices_getscore(value vChoices, value vN) {
-    CAMLparam2(vChoices, vN);
-
-    choice_W *p = Data_custom_val(vChoices);
-    choices_t *choices = p->choice;
-
-    size_t n = (size_t) Int_val(vN);
-
-    score_t score = choices_getscore(choices, n);
-
-    CAMLreturn(Val_long(score));
-}
-
