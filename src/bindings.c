@@ -54,7 +54,26 @@ CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
     for (int i = 0; i < choices_available(&choices); ++i) {
         const double score = choices_getscore(&choices, i);
         const char *term = choices_get(&choices, i);
+        
+        // This isn't actually computed at the moment.
+        // Its only done in the tty bits. I can either call
+        // match_positions directly here. Or... I can edit
+        // fzy to just always call that. That way I don't need
+        // to recalc the expensive score again.
+        //
+        // Probably something I should benchmark, but seems
+        // silly to me to redo a full match alg, just for the
+        // positions.
+        //
+        // Finally, could just do the calculation here, since
+        // it is only a basic thing. That way, I don't need to
+        // edit the fzy source code, aiding bringing in upstream
+        // stuff.
 
+        // const size_t* positions = []; 
+
+        // We want to store the score and the search term.
+        // Well and the positions.
         Store_double_field(scoreList, i, score);
 
         if (score > 0) {
