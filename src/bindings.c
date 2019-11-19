@@ -50,18 +50,26 @@ CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
 
     scoreList = caml_alloc(nItems * Double_wosize, Double_array_tag);
 
-    for (int i = 0; i < nItems; ++i) {
-        double score = choices_getscore(&choices, i);
-        // printf("Score was %f\n", score);
+    // Fzy only stores scores for those with an actual match.
+    for (int i = 0; i < choices_available(&choices); ++i) {
+        const double score = choices_getscore(&choices, i);
+        const char *term = choices_get(&choices, i);
 
-        // If the score is NaN, just store 0.
-        if (score != score) {
-          Store_double_field(scoreList, i, 0.0);
-        } else {
-          Store_double_field(scoreList, i, score);
+        Store_double_field(scoreList, i, score);
+
+        if (score > 0) {
+          printf("%s scored %f\n.", term, score);
         }
     }
 
     choices_destroy(&choices);
+
+    // We want to return score, terms and positions.
+    // I think just returning only the few that have stuff is the best.
+    // We can then just populate the rest in Reason-land. I.e. if its missing,
+    // give it 0 and [].
+    //
+    // I should check that though...maybe its better/faster to populate
+    // that here, I'm not really sure.
     CAMLreturn(scoreList);
 }
