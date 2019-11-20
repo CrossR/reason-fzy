@@ -11,25 +11,6 @@
 
 #include <choices.h>
 
-typedef struct _choice {
-  choices_t *choice;
-} choice_W;
-
-void finalize_choice(value v) {
-  choice_W *p;
-  p = (choice_W *)Data_custom_val(v);
-  choices_destroy(p->choice);
-}
-
-static struct custom_operations choices_custom_ops = {
-  .identifier = "choices handling",
-  .finalize = custom_finalize_default,
-  .compare = custom_compare_default,
-  .hash = custom_hash_default,
-  .serialize = custom_serialize_default,
-  .deserialize = custom_deserialize_default
-};
-
 CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
     CAMLparam2(vHaystack, vNeedle);
     CAMLlocal1(scoreList);
@@ -52,43 +33,31 @@ CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
 
     // Fzy only stores scores for those with an actual match.
     for (int i = 0; i < choices_available(&choices); ++i) {
-        const double score = choices_getscore(&choices, i);
+
+        // Get the search terms that actually matched.
         const char *term = choices_get(&choices, i);
         
-        // This isn't actually computed at the moment.
-        // Its only done in the tty bits. I can either call
-        // match_positions directly here. Or... I can edit
-        // fzy to just always call that. That way I don't need
-        // to recalc the expensive score again.
-        //
-        // Probably something I should benchmark, but seems
-        // silly to me to redo a full match alg, just for the
-        // positions.
-        //
-        // Finally, could just do the calculation here, since
-        // it is only a basic thing. That way, I don't need to
-        // edit the fzy source code, aiding bringing in upstream
-        // stuff.
+        // Now go back and get the score again, and populate the
+        // match locations.
+        int n = strlen(term);
+        size_t positions[n + 1];
+        for (int i = 0; i < n + 1; i++)
+          positions[i] = -1;
 
-        // const size_t* positions = []; 
+        const double score = match_positions(needle, term, &positions[0]);
 
-        // We want to store the score and the search term.
-        // Well and the positions.
+        // At this point we have everything:
+        //    - term
+        //    - score
+        //    - positions[:strlen(needle)]
+
+        // TODO: Is it always strlen(needle)?
+        // If there is a needle of len 10 and we match 8, what then?
+
         Store_double_field(scoreList, i, score);
-
-        if (score > 0) {
-          printf("%s scored %f\n.", term, score);
-        }
     }
 
     choices_destroy(&choices);
 
-    // We want to return score, terms and positions.
-    // I think just returning only the few that have stuff is the best.
-    // We can then just populate the rest in Reason-land. I.e. if its missing,
-    // give it 0 and [].
-    //
-    // I should check that though...maybe its better/faster to populate
-    // that here, I'm not really sure.
     CAMLreturn(scoreList);
 }
