@@ -13,7 +13,7 @@
 
 CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
     CAMLparam2(vHaystack, vNeedle);
-    CAMLlocal1(scoreList);
+    CAMLlocal2(v, ret);
 
     options_t options;
     choices_t choices;
@@ -29,35 +29,37 @@ CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
     const char *needle = String_val(vNeedle);
     choices_search(&choices, needle);
 
-    scoreList = caml_alloc(nItems * Double_wosize, Double_array_tag);
+    ret = caml_alloc(choices_available(&choices), 0);
 
     // Fzy only stores scores for those with an actual match.
     for (int i = 0; i < choices_available(&choices); ++i) {
 
         // Get the search terms that actually matched.
-        const char *term = choices_get(&choices, i);
+        const char *matchTerm = choices_get(&choices, i);
         
         // Now go back and get the score again, and populate the
         // match locations.
-        int n = strlen(term);
-        size_t positions[n + 1];
-        for (int i = 0; i < n + 1; i++)
+        int n = strlen(matchTerm) + 1;
+        size_t positions[n];
+        for (int i = 0; i < n; i++)
           positions[i] = -1;
 
-        const double score = match_positions(needle, term, &positions[0]);
+        const double score = match_positions(needle, matchTerm, &positions[0]);
 
-        // At this point we have everything:
-        //    - term
-        //    - score
-        //    - positions[:strlen(needle)]
+        printf("Starting alloc....\n");
+        v = caml_alloc(2, 0);
 
-        // TODO: Is it always strlen(needle)?
-        // If there is a needle of len 10 and we match 8, what then?
+        printf("Starting stores....\n");
+        Store_field(v, 0, String_val(matchTerm));
+        Store_double_field(v, 1, score);
+        // Store_field(v, 2, Double_val(positions));
 
-        Store_double_field(scoreList, i, score);
+        printf("Starting store to ret....\n");
+        Store_field(ret, i, v);
     }
 
     choices_destroy(&choices);
 
-    CAMLreturn(scoreList);
+    printf("Returning....\n");
+    CAMLreturn(ret);
 }
