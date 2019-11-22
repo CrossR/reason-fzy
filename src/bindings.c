@@ -50,8 +50,8 @@ CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
         v = caml_alloc(2, 0);
 
         printf("Starting stores....\n");
-        Store_field(v, 0, String_val(matchTerm));
-        Store_double_field(v, 1, score);
+        Store_field(v, 0, caml_copy_string(matchTerm));
+        Store_field(v, 1, caml_copy_double(score));
         // Store_field(v, 2, Double_val(positions));
 
         printf("Starting store to ret....\n");
