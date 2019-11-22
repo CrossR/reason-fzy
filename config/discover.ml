@@ -38,6 +38,7 @@ let flags =
         @ cclib("-lfzy")
     | _ -> []
         @ ccopt(libPath)
+        @ cclib("-pthread")
         @ cclib("-lfzy")
 ;;
 
