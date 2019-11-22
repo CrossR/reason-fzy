@@ -2,10 +2,17 @@
 
 name: $(Build.SourceVersion)
 jobs:
-- job: Linux
+- job: Ubuntu 16.04
   displayName: "Linux - Ubuntu 16.04"
   pool:
     vmImage: 'Ubuntu 16.04'
+  steps:
+  - template: .ci/esy-build-steps.yml
+
+- job: Ubuntu 18.04
+  displayName: "Linux - Ubuntu 18.04"
+  pool:
+    vmImage: 'Ubuntu 18.04'
   steps:
   - template: .ci/esy-build-steps.yml
 
@@ -23,9 +30,15 @@ jobs:
   steps:
   - template: .ci/esy-build-steps.yml
 
-- job: Windows
+- job: Windows 2016
   pool:
     vmImage: 'vs2017-win2016'
+  steps:
+  - template: .ci/esy-build-steps.yml
+
+- job: Windows 2019
+  pool:
+    vmImage: 'windows-2019'
   steps:
   - template: .ci/esy-build-steps.yml
 
