@@ -9,7 +9,33 @@
 #include <caml/mlvalues.h>
 #include <caml/threads.h>
 
+#ifdef __APPLE__
+#include "sys/sysctl.h"
+#endif
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include <choices.h>
+
+int get_core_count() {
+#if defined(__APPLE__)
+    int core_count = 0;
+    size_t size = sizeof(core_count);
+    sysctlbyname("hw.logicalcpu", &core_count, &size, NULL, 0 );
+    return core_count;
+#elif defined(_WIN32)
+    SYSTEM_INFO siSysInfo;
+    GetSystemInfo(&siSysInfo);
+    return (int)siSysInfo.dwNumberOfProcessors;
+#elif defined(__unix__) && defined(_SC_NPROCESSORS_ONLN)
+    return (int)sysconf(_SC_NPROCESSORS_ONLN);
+#else
+    return 1; // Sane default for now.
+#endif
+}
+
 
 CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
     CAMLparam2(vHaystack, vNeedle);
@@ -18,6 +44,7 @@ CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
     options_t options;
     choices_t choices;
     options_init(&options);
+    options.workers = get_core_count();
     choices_init(&choices, &options);
 
     const int nItems = Wosize_val(vHaystack);
@@ -37,7 +64,7 @@ CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
 
         // Get the search terms that actually matched.
         const char *matchTerm = choices_get(&choices, i);
-        
+
         // Now go back and get the score again, and populate the
         // match locations.
         const int n = strlen(matchTerm) + 1;
