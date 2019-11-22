@@ -13,23 +13,24 @@
 
 CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
     CAMLparam2(vHaystack, vNeedle);
-    CAMLlocal2(v, ret);
+    CAMLlocal3(match_item, matched_chars, return_array);
 
     options_t options;
     choices_t choices;
     options_init(&options);
     choices_init(&choices, &options);
 
-    int nItems = Wosize_val(vHaystack);
+    const int nItems = Wosize_val(vHaystack);
 
     for (int i = 0; i < nItems; ++i) {
         choices_add(&choices, String_val(Field(vHaystack, i)));
     }
 
     const char *needle = String_val(vNeedle);
+    const int needleSize = strlen(needle);
     choices_search(&choices, needle);
 
-    ret = caml_alloc(choices_available(&choices), 0);
+    return_array = caml_alloc(choices_available(&choices), 0);
 
     // Fzy only stores scores for those with an actual match.
     for (int i = 0; i < choices_available(&choices); ++i) {
@@ -39,27 +40,28 @@ CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
         
         // Now go back and get the score again, and populate the
         // match locations.
-        int n = strlen(matchTerm) + 1;
+        const int n = strlen(matchTerm) + 1;
         size_t positions[n];
         for (int i = 0; i < n; i++)
           positions[i] = -1;
 
         const double score = match_positions(needle, matchTerm, &positions[0]);
 
-        // printf("Starting alloc....\n");
-        v = caml_alloc(2, 0);
+        match_item = caml_alloc(3, 0);
 
-        // printf("Starting stores....\n");
-        Store_field(v, 0, caml_copy_string(matchTerm));
-        Store_field(v, 1, caml_copy_double(score));
-        // Store_field(v, 2, Double_val(positions));
+        matched_chars = caml_alloc(needleSize, 0);
 
-        // printf("Starting store to ret....\n");
-        Store_field(ret, i, v);
+        for (int i = 0; i < needleSize; ++i)
+            Store_field(matched_chars, i, Val_int(positions[i]));
+
+        Store_field(match_item, 0, caml_copy_string(matchTerm));
+        Store_field(match_item, 1, caml_copy_double(score));
+        Store_field(match_item, 2, matched_chars);
+
+        Store_field(return_array, i, match_item);
     }
 
     choices_destroy(&choices);
 
-    // printf("Returning....\n");
-    CAMLreturn(ret);
+    CAMLreturn(return_array);
 }

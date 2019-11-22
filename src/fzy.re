@@ -3,7 +3,7 @@ module Result = {
     type t = {
         term: string,
         score: float,
-        // positions: array(int),
+        positions: array(int),
     };
 };
 
