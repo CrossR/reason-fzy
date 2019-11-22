@@ -46,20 +46,20 @@ CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
 
         const double score = match_positions(needle, matchTerm, &positions[0]);
 
-        printf("Starting alloc....\n");
+        // printf("Starting alloc....\n");
         v = caml_alloc(2, 0);
 
-        printf("Starting stores....\n");
+        // printf("Starting stores....\n");
         Store_field(v, 0, caml_copy_string(matchTerm));
         Store_field(v, 1, caml_copy_double(score));
         // Store_field(v, 2, Double_val(positions));
 
-        printf("Starting store to ret....\n");
+        // printf("Starting store to ret....\n");
         Store_field(ret, i, v);
     }
 
     choices_destroy(&choices);
 
-    printf("Returning....\n");
+    // printf("Returning....\n");
     CAMLreturn(ret);
 }
