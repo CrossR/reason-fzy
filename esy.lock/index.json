@@ -1,5 +1,5 @@
 {
-  "checksum": "abebee2633f2b36a2da9e183f79bd90d",
+  "checksum": "986a8db57c3cb00822e90c11ab002f85",
   "root": "reason-fzy@link-dev:./package.json",
   "node": {
     "reperf@1.4.0@d41d8cd9": {
@@ -54,7 +54,7 @@
       "dependencies": [
         "reperf@1.4.0@d41d8cd9", "refmterr@3.2.2@d41d8cd9",
         "ocaml@4.8.1000@d41d8cd9",
-        "esy-fzy@github:CrossR/esy-fzy#7b46fa8@d41d8cd9",
+        "esy-fzy@github:CrossR/esy-fzy#d0accff@d41d8cd9",
         "@reason-native/rely@1.3.1@d41d8cd9",
         "@opam/dune@opam:1.11.4@21d66ccd", "@esy-ocaml/reason@3.5.2@d41d8cd9"
       ],
@@ -74,13 +74,13 @@
       "dependencies": [],
       "devDependencies": []
     },
-    "esy-fzy@github:CrossR/esy-fzy#7b46fa8@d41d8cd9": {
-      "id": "esy-fzy@github:CrossR/esy-fzy#7b46fa8@d41d8cd9",
+    "esy-fzy@github:CrossR/esy-fzy#d0accff@d41d8cd9": {
+      "id": "esy-fzy@github:CrossR/esy-fzy#d0accff@d41d8cd9",
       "name": "esy-fzy",
-      "version": "github:CrossR/esy-fzy#7b46fa8",
+      "version": "github:CrossR/esy-fzy#d0accff",
       "source": {
         "type": "install",
-        "source": [ "github:CrossR/esy-fzy#7b46fa8" ]
+        "source": [ "github:CrossR/esy-fzy#d0accff" ]
       },
       "overrides": [],
       "dependencies": [],
