@@ -6,6 +6,7 @@ module Result = {
   };
 };
 
-external _searchForItem: (array(string), string) => array(Result.t) =
-  "fzy_search_for_item";
-let searchForItem = (haystack, needle) => _searchForItem(haystack, needle);
+external _searchInArray: (array(string), string) => array(Result.t) = "fzy_search_for_item";
+external _searchInList: (list(string), string) => list(Result.t) = "fzy_search_for_item";
+let fzySearchArray = (haystack, needle) => _searchInArray(haystack, needle);
+let fzySearchList = (haystack, needle) => _searchInList(haystack, needle);
