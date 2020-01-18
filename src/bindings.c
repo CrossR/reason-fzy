@@ -36,10 +36,7 @@ int get_core_count() {
 #endif
 }
 
-
-CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
-    CAMLparam2(vHaystack, vNeedle);
-    CAMLlocal3(match_item, matched_chars, return_array);
+choices_t fzy_init() {
 
     options_t options;
     choices_t choices;
@@ -47,11 +44,12 @@ CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
     options.workers = get_core_count();
     choices_init(&choices, &options);
 
-    const int nItems = Wosize_val(vHaystack);
+    return choices;
+}
 
-    for (int i = 0; i < nItems; ++i) {
-        choices_add(&choices, String_val(Field(vHaystack, i)));
-    }
+CAMLprim value fzy_search_for_item(choices_t choices, value vNeedle) {
+    CAMLparam1(vNeedle);
+    CAMLlocal3(match_item, matched_chars, return_array);
 
     const char *needle = String_val(vNeedle);
     const int needleSize = strlen(needle);
@@ -90,5 +88,44 @@ CAMLprim value fzy_search_for_item(value vHaystack, value vNeedle) {
 
     choices_destroy(&choices);
 
-    CAMLreturn(return_array);
+    return return_array;
 }
+
+CAMLprim value fzy_search_for_item_in_list(value vHaystack, value vNeedle) {
+    CAMLparam2(vHaystack, vNeedle);
+    CAMLlocal2(head, return_array);
+
+    if (vHaystack == Val_emptylist) {
+        return return_array;
+    }
+
+    choices_t choices = fzy_init();
+
+    // Lists here are represented as [0, [1, [2, []]]]
+    while(vHaystack != Val_emptylist) {
+        head = Field(vHaystack, 0);
+        choices_add(&choices, String_val(head));
+        vHaystack = Field(vHaystack, 1);
+    }
+
+    CAMLreturn(fzy_search_for_item(choices, vNeedle));
+}
+
+CAMLprim value fzy_search_for_item_in_array(value vHaystack, value vNeedle) {
+    CAMLparam2(vHaystack, vNeedle);
+    CAMLlocal1(return_array);
+
+    if (vHaystack == Val_emptylist) {
+        return return_array;
+    }
+
+    choices_t choices = fzy_init();
+    const int nItems = Wosize_val(vHaystack);
+
+    for (int i = 0; i < nItems; ++i) {
+        choices_add(&choices, String_val(Field(vHaystack, i)));
+    }
+
+    CAMLreturn(fzy_search_for_item(choices, vNeedle));
+}
+
