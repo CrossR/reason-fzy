@@ -5,7 +5,7 @@ jobs:
 - job: Ubuntu1604
   displayName: "Linux - Ubuntu 16.04"
   pool:
-    vmImage: 'Ubuntu 16.04'
+    vmImage: 'ubuntu-16.04'
 
   variables:
     STAGING_DIRECTORY: $(Build.StagingDirectory)
@@ -21,7 +21,7 @@ jobs:
 - job: Ubuntu1804
   displayName: "Linux - Ubuntu 18.04"
   pool:
-    vmImage: 'Ubuntu 18.04'
+    vmImage: 'ubuntu-18.04'
 
   variables:
     STAGING_DIRECTORY: $(Build.StagingDirectory)
@@ -37,7 +37,7 @@ jobs:
 - job: MacOS14
   displayName: "MacOS Mojave"
   pool:
-    vmImage: 'macOS 10.14'
+    vmImage: 'macOS-10.14'
 
   variables:
     STAGING_DIRECTORY: $(Build.StagingDirectory)
@@ -53,7 +53,7 @@ jobs:
 - job: MacOS15
   displayName: "MacOS Catalina"
   pool:
-    vmImage: 'macOS 10.15'
+    vmImage: 'macOS-10.15'
 
   variables:
     STAGING_DIRECTORY: $(Build.StagingDirectory)
