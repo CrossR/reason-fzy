@@ -6,5 +6,5 @@ module Result: {
   };
 };
 
-let fzySearchArray: (array(string), string) => array(Result.t);
-let fzySearchList: (list(string), string) => list(Result.t);
+let fzySearchArray: (array(string), string, bool) => array(Result.t);
+let fzySearchList: (list(string), string, bool) => list(Result.t);

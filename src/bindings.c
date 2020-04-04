@@ -21,7 +21,7 @@
 
 int get_core_count() {
 #if defined(__APPLE__)
-    int core_count = 0;
+    int core_count = 1;
     size_t size = sizeof(core_count);
     sysctlbyname("hw.logicalcpu", &core_count, &size, NULL, 0 );
     return core_count;
@@ -36,12 +36,13 @@ int get_core_count() {
 #endif
 }
 
-choices_t fzy_init() {
+choices_t fzy_init(int sorted) {
 
     options_t options;
     choices_t choices;
     options_init(&options);
     options.workers = get_core_count();
+    options.sort_choices = sorted;
     choices_init(&choices, &options);
 
     return choices;
@@ -91,15 +92,16 @@ CAMLprim value fzy_search_for_item(choices_t choices, value vNeedle) {
     return return_array;
 }
 
-CAMLprim value fzy_search_for_item_in_list(value vHaystack, value vNeedle) {
-    CAMLparam2(vHaystack, vNeedle);
+CAMLprim value fzy_search_for_item_in_list(value vHaystack, value vNeedle, value vSort) {
+    CAMLparam3(vHaystack, vNeedle, vSort);
     CAMLlocal2(head, return_array);
 
     if (vHaystack == Val_emptylist) {
         return return_array;
     }
 
-    choices_t choices = fzy_init();
+    int sorted = Bool_val(vSort) ? 1 : 0;
+    choices_t choices = fzy_init(sorted);
 
     // Lists here are represented as [0, [1, [2, []]]]
     while(vHaystack != Val_emptylist) {
@@ -111,15 +113,17 @@ CAMLprim value fzy_search_for_item_in_list(value vHaystack, value vNeedle) {
     CAMLreturn(fzy_search_for_item(choices, vNeedle));
 }
 
-CAMLprim value fzy_search_for_item_in_array(value vHaystack, value vNeedle) {
-    CAMLparam2(vHaystack, vNeedle);
+CAMLprim value fzy_search_for_item_in_array(value vHaystack, value vNeedle, value vSort) {
+    CAMLparam3(vHaystack, vNeedle, vSort);
     CAMLlocal1(return_array);
 
     if (vHaystack == Val_emptylist) {
         return return_array;
     }
 
-    choices_t choices = fzy_init();
+
+    int sorted = Bool_val(vSort) ? 1 : 0;
+    choices_t choices = fzy_init(sorted);
     const int nItems = Wosize_val(vHaystack);
 
     for (int i = 0; i < nItems; ++i) {
