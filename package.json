@@ -10,7 +10,7 @@
     "build": ["refmterr dune build -p Fzy"],
     "buildsInSource": "_build",
     "install": [
-        "esy-installer #{self.target_dir}/default/Fzy.install"
+        "esy-installer Fzy.install"
     ]
   },
   "dependencies": {
