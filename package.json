@@ -10,7 +10,7 @@
     "build": ["refmterr dune build -p Fzy"],
     "buildsInSource": "_build",
     "install": [
-        "esy-installer Fzy.install"
+        "esy-installer #{self.target_dir}/default/Fzy.install"
     ]
   },
   "dependencies": {
@@ -19,7 +19,7 @@
     "@esy-ocaml/reason": "^3.4.0",
     "refmterr": "*",
     "ocaml": ">=4.7.0 <4.10.0",
-    "esy-fzy": "github:CrossR/esy-fzy#d0accff"
+    "esy-fzy": "github:CrossR/esy-fzy#3f270ca"
   },
   "resolutions": {
     "@opam/ocaml-migrate-parsetree": "1.5.0",
