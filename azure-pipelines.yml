@@ -34,10 +34,10 @@ jobs:
   - template: .ci/esy-build-steps.yml
   - template: .ci/publish-build-cache.yml
 
-- job: MacOS13
+- job: MacOS14
   displayName: "MacOS Mojave"
   pool:
-    vmImage: 'macOS 10.13'
+    vmImage: 'macOS 10.14'
 
   variables:
     STAGING_DIRECTORY: $(Build.StagingDirectory)
@@ -50,10 +50,10 @@ jobs:
   - template: .ci/esy-build-steps.yml
   - template: .ci/publish-build-cache.yml
 
-- job: MacOS14
-  displayName: "MacOS High Sierra"
+- job: MacOS15
+  displayName: "MacOS Catalina"
   pool:
-    vmImage: 'macOS 10.14'
+    vmImage: 'macOS 10.15'
 
   variables:
     STAGING_DIRECTORY: $(Build.StagingDirectory)
