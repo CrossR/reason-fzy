@@ -1,5 +1,5 @@
 {
-  "checksum": "be5e733b538a59ed427dc69ca9805ed1",
+  "checksum": "c4135e8ae07872678e3244df815ade75",
   "root": "reason-fzy@link-dev:./package.json",
   "node": {
     "refmterr@3.3.0@d41d8cd9": {
@@ -34,7 +34,7 @@
       "overrides": [],
       "dependencies": [
         "refmterr@3.3.0@d41d8cd9", "ocaml@4.9.0@d41d8cd9",
-        "esy-fzy@github:CrossR/esy-fzy#3367ad6@d41d8cd9",
+        "esy-fzy@github:CrossR/esy-fzy#599bc95@d41d8cd9",
         "@opam/dune-configurator@opam:2.4.0@6976bb12",
         "@opam/dune@opam:2.4.0@639d28a3", "@esy-ocaml/reason@3.6.0@d41d8cd9"
       ],
@@ -54,13 +54,13 @@
       "dependencies": [],
       "devDependencies": []
     },
-    "esy-fzy@github:CrossR/esy-fzy#3367ad6@d41d8cd9": {
-      "id": "esy-fzy@github:CrossR/esy-fzy#3367ad6@d41d8cd9",
+    "esy-fzy@github:CrossR/esy-fzy#599bc95@d41d8cd9": {
+      "id": "esy-fzy@github:CrossR/esy-fzy#599bc95@d41d8cd9",
       "name": "esy-fzy",
-      "version": "github:CrossR/esy-fzy#3367ad6",
+      "version": "github:CrossR/esy-fzy#599bc95",
       "source": {
         "type": "install",
-        "source": [ "github:CrossR/esy-fzy#3367ad6" ]
+        "source": [ "github:CrossR/esy-fzy#599bc95" ]
       },
       "overrides": [],
       "dependencies": [],

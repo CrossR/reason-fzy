@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include <caml/alloc.h>
 #include <caml/bigarray.h>
