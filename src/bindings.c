@@ -49,56 +49,43 @@ choices_t fzy_init(int sorted) {
     return choices;
 }
 
-CAMLprim value fzy_search_for_item(choices_t choices, value vNeedle) {
+CAMLprim value format_return_item(choices_t choices, int i, value vNeedle) {
     CAMLparam1(vNeedle);
-    CAMLlocal3(match_item, matched_chars, return_array);
+    CAMLlocal2(match_item, matched_chars);
 
     const char *needle = String_val(vNeedle);
     const int needleSize = strlen(needle);
-    choices_search(&choices, needle);
+    const char *matchTerm = choices_get(&choices, i);
 
-    return_array = caml_alloc(choices_available(&choices), 0);
+    const int n = strlen(matchTerm) + 1;
+    size_t positions[n];
+    for (int i = 0; i < n; i++)
+        positions[i] = -1;
 
-    // Fzy only stores scores for those with an actual match.
-    for (int i = 0; i < choices_available(&choices); ++i) {
+    const double score = match_positions(needle, matchTerm, &positions[0]);
 
-        // Get the search terms that actually matched.
-        const char *matchTerm = choices_get(&choices, i);
+    match_item = caml_alloc(3, 0);
 
-        // Now go back and get the score again, and populate the
-        // match locations.
-        const int n = strlen(matchTerm) + 1;
-        size_t positions[n];
-        for (int i = 0; i < n; i++)
-          positions[i] = -1;
+    matched_chars = caml_alloc(needleSize, 0);
 
-        const double score = match_positions(needle, matchTerm, &positions[0]);
+    for (int i = 0; i < needleSize; ++i)
+        Store_field(matched_chars, i, Val_int(positions[i]));
 
-        match_item = caml_alloc(3, 0);
+    Store_field(match_item, 0, caml_copy_string(matchTerm));
+    Store_field(match_item, 1, caml_copy_double(score));
+    Store_field(match_item, 2, matched_chars);
 
-        matched_chars = caml_alloc(needleSize, 0);
-
-        for (int i = 0; i < needleSize; ++i)
-            Store_field(matched_chars, i, Val_int(positions[i]));
-
-        Store_field(match_item, 0, caml_copy_string(matchTerm));
-        Store_field(match_item, 1, caml_copy_double(score));
-        Store_field(match_item, 2, matched_chars);
-
-        Store_field(return_array, i, match_item);
-    }
-
-    choices_destroy(&choices);
-
-    return return_array;
+    return match_item;
 }
 
 CAMLprim value fzy_search_for_item_in_list(value vHaystack, value vNeedle, value vSort) {
     CAMLparam3(vHaystack, vNeedle, vSort);
-    CAMLlocal2(head, return_array);
+    CAMLlocal3(head, cons, return_list);
+
+    return_list = Val_emptylist;
 
     if (vHaystack == Val_emptylist) {
-        return return_array;
+        return return_list;
     }
 
     int sorted = Bool_val(vSort) ? 1 : 0;
@@ -111,7 +98,24 @@ CAMLprim value fzy_search_for_item_in_list(value vHaystack, value vNeedle, value
         vHaystack = Field(vHaystack, 1);
     }
 
-    CAMLreturn(fzy_search_for_item(choices, vNeedle));
+    const char *needle = String_val(vNeedle);
+    const int needleSize = strlen(needle);
+    choices_search(&choices, needle);
+
+    return_list = caml_alloc(choices_available(&choices) - 1, 0);
+
+    // Fzy only stores scores for those with an actual match.
+    for (int i = 0; i < choices_available(&choices); ++i)
+    {
+        cons = caml_alloc(2, 0);
+        Store_field(cons, 0, format_return_item(choices, i, vNeedle));
+        Store_field(cons, 1, return_list);
+        return_list = cons;
+    }
+
+    choices_destroy(&choices);
+
+    CAMLreturn(return_list);
 }
 
 CAMLprim value fzy_search_for_item_in_array(value vHaystack, value vNeedle, value vSort) {
@@ -130,6 +134,18 @@ CAMLprim value fzy_search_for_item_in_array(value vHaystack, value vNeedle, valu
         choices_add(&choices, String_val(Field(vHaystack, i)));
     }
 
-    CAMLreturn(fzy_search_for_item(choices, vNeedle));
+    const char *needle = String_val(vNeedle);
+    const int needleSize = strlen(needle);
+    choices_search(&choices, needle);
+
+    return_array = caml_alloc(choices_available(&choices), 0);
+
+    // Fzy only stores scores for those with an actual match.
+    for (int i = 0; i < choices_available(&choices); ++i)
+        Store_field(return_array, i, format_return_item(choices, i, vNeedle));
+
+    choices_destroy(&choices);
+
+    CAMLreturn(return_array);
 }
 
