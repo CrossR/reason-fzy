@@ -57,15 +57,13 @@ CAMLprim value format_return_item(choices_t choices, int i, value vNeedle) {
     const int needleSize = strlen(needle);
     const char *matchTerm = choices_get(&choices, i);
 
-    const int n = strlen(matchTerm) + 1;
-    size_t positions[n];
-    for (int i = 0; i < n; i++)
+    size_t positions[needleSize];
+    for (int i = 0; i < needleSize; i++)
         positions[i] = -1;
 
     const double score = match_positions(needle, matchTerm, &positions[0]);
 
     match_item = caml_alloc(3, 0);
-
     matched_chars = caml_alloc(needleSize, 0);
 
     for (int i = 0; i < needleSize; ++i)
@@ -75,7 +73,7 @@ CAMLprim value format_return_item(choices_t choices, int i, value vNeedle) {
     Store_field(match_item, 1, caml_copy_double(score));
     Store_field(match_item, 2, matched_chars);
 
-    return match_item;
+    CAMLreturn(match_item);
 }
 
 CAMLprim value fzy_search_for_item_in_list(value vHaystack, value vNeedle, value vSort) {
