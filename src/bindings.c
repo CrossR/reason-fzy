@@ -121,7 +121,6 @@ CAMLprim value fzy_search_for_item_in_array(value vHaystack, value vNeedle, valu
         return return_array;
     }
 
-
     int sorted = Bool_val(vSort) ? 1 : 0;
     choices_t choices = fzy_init(sorted);
     const int nItems = Wosize_val(vHaystack);
