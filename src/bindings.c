@@ -102,10 +102,10 @@ CAMLprim value fzy_search_for_item_in_list(value vHaystack, value vNeedle, value
     const int needleSize = strlen(needle);
     choices_search(&choices, needle);
 
-    return_list = caml_alloc(choices_available(&choices) - 1, 0);
+    const int numChoices = choices_available(&choices);
 
     // Fzy only stores scores for those with an actual match.
-    for (int i = 0; i < choices_available(&choices); ++i)
+    for (int i = numChoices - 1; i >= 0; --i)
     {
         cons = caml_alloc(2, 0);
         Store_field(cons, 0, format_return_item(choices, i, vNeedle));
