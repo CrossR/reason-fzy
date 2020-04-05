@@ -85,7 +85,7 @@ CAMLprim value fzy_search_for_item_in_list(value vHaystack, value vNeedle, value
     return_list = Val_emptylist;
 
     if (vHaystack == Val_emptylist) {
-        return return_list;
+        CAMLreturn(return_list);
     }
 
     int sorted = Bool_val(vSort) ? 1 : 0;
@@ -123,7 +123,7 @@ CAMLprim value fzy_search_for_item_in_array(value vHaystack, value vNeedle, valu
     CAMLlocal1(return_array);
 
     if (vHaystack == Val_emptylist) {
-        return return_array;
+        CAMLreturn(return_array);
     }
 
     int sorted = Bool_val(vSort) ? 1 : 0;
