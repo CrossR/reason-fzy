@@ -55,14 +55,11 @@ CAMLprim value format_return_item(choices_t choices, int i, value vNeedle) {
 
     const char *needle = String_val(vNeedle);
     const int needleSize = strlen(needle);
+
     const char *matchTerm = choices_get(&choices, i);
     const int index = choices_getindex(&choices, i);
-
-    size_t positions[needleSize];
-    for (int i = 0; i < needleSize; i++)
-        positions[i] = -1;
-
-    const double score = match_positions(needle, matchTerm, &positions[0]);
+    const double score = choices_getscore(&choices, i);
+    const size_t *positions = choices_getpositions(&choices, i);
 
     match_item = caml_alloc(4, 0);
     matched_chars = caml_alloc(needleSize, 0);

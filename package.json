@@ -19,7 +19,7 @@
     "@esy-ocaml/reason": "^3.4.0",
     "refmterr": "*",
     "ocaml": ">=4.7.0 <4.10.0",
-    "esy-fzy": "github:CrossR/esy-fzy#8b7e4c0"
+    "esy-fzy": "github:CrossR/esy-fzy#e1bbbf1"
   },
   "resolutions": {
     "@opam/ocaml-migrate-parsetree": "1.5.0",
