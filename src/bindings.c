@@ -49,11 +49,10 @@ choices_t fzy_init(int sorted) {
     return choices;
 }
 
-CAMLprim value format_return_item(choices_t choices, int i, value vNeedle) {
-    CAMLparam1(vNeedle);
+CAMLprim value format_return_item(choices_t choices, const int i, const char *needle) {
+    CAMLparam0();
     CAMLlocal2(match_item, matched_chars);
 
-    const char *needle = String_val(vNeedle);
     const int needleSize = strlen(needle);
 
     const char *matchTerm = choices_get(&choices, i);
@@ -100,7 +99,6 @@ CAMLprim value fzy_search_for_item_in_list(value vHaystack, value vNeedle, value
     }
 
     const char *needle = String_val(vNeedle);
-    const int needleSize = strlen(needle);
     choices_search(&choices, needle);
 
     const int numChoices = choices_available(&choices);
@@ -109,7 +107,7 @@ CAMLprim value fzy_search_for_item_in_list(value vHaystack, value vNeedle, value
     for (int i = numChoices - 1; i >= 0; --i)
     {
         cons = caml_alloc(2, 0);
-        Store_field(cons, 0, format_return_item(choices, i, vNeedle));
+        Store_field(cons, 0, format_return_item(choices, i, needle));
         Store_field(cons, 1, return_list);
         return_list = cons;
     }
@@ -136,14 +134,14 @@ CAMLprim value fzy_search_for_item_in_array(value vHaystack, value vNeedle, valu
     }
 
     const char *needle = String_val(vNeedle);
-    const int needleSize = strlen(needle);
     choices_search(&choices, needle);
 
-    return_array = caml_alloc(choices_available(&choices), 0);
+    int numChoices = choices_available(&choices) > 90000 ? 90000 : choices_available(&choices);
+    return_array = caml_alloc(numChoices, 0);
 
     // Fzy only stores scores for those with an actual match.
-    for (int i = 0; i < choices_available(&choices); ++i)
-        Store_field(return_array, i, format_return_item(choices, i, vNeedle));
+    for (int i = 0; i < numChoices; ++i)
+        Store_field(return_array, i, format_return_item(choices, i, needle));
 
     choices_destroy(&choices);
 
