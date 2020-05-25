@@ -54,7 +54,6 @@ CAMLprim value format_return_item(choices_t choices, const int i, const char *ne
     CAMLlocal2(match_item, matched_chars);
 
     const int needleSize = strlen(needle);
-
     const char *matchTerm = choices_get(&choices, i);
     const int index = choices_getindex(&choices, i);
 
@@ -104,8 +103,7 @@ CAMLprim value fzy_search_for_item_in_list(value vHaystack, value vNeedle, value
     const int numChoices = choices_available(&choices);
 
     // Fzy only stores scores for those with an actual match.
-    for (int i = numChoices - 1; i >= 0; --i)
-    {
+    for (int i = numChoices - 1; i >= 0; --i) {
         cons = caml_alloc(2, 0);
         Store_field(cons, 0, format_return_item(choices, i, needle));
         Store_field(cons, 1, return_list);
@@ -121,6 +119,8 @@ CAMLprim value fzy_search_for_item_in_array(value vHaystack, value vNeedle, valu
     CAMLparam3(vHaystack, vNeedle, vSort);
     CAMLlocal1(return_array);
 
+    return_array = Val_emptylist;
+
     if (vHaystack == Val_emptylist) {
         CAMLreturn(return_array);
     }
@@ -130,19 +130,21 @@ CAMLprim value fzy_search_for_item_in_array(value vHaystack, value vNeedle, valu
     const int nItems = Wosize_val(vHaystack);
 
     for (int i = 0; i < nItems; ++i) {
-        choices_add(&choices, String_val(Field(vHaystack, i)));
+        choices_add(&choices, strdup(String_val(Field(vHaystack, i))));
     }
 
-    const char *needle = String_val(vNeedle);
+    char *needle = strdup(String_val(vNeedle));
     choices_search(&choices, needle);
 
-    int numChoices = choices_available(&choices) > 90000 ? 90000 : choices_available(&choices);
+    int numChoices = choices_available(&choices);
     return_array = caml_alloc(numChoices, 0);
 
     // Fzy only stores scores for those with an actual match.
-    for (int i = 0; i < numChoices; ++i)
+    for (int i = 0; i < numChoices; ++i) {
         Store_field(return_array, i, format_return_item(choices, i, needle));
+    }
 
+    free(needle);
     choices_destroy(&choices);
 
     CAMLreturn(return_array);
