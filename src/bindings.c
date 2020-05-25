@@ -128,9 +128,11 @@ CAMLprim value fzy_search_for_item_in_array(value vHaystack, value vNeedle, valu
     int sorted = Bool_val(vSort) ? 1 : 0;
     choices_t choices = fzy_init(sorted);
     const int nItems = Wosize_val(vHaystack);
+    char *items[nItems];
 
     for (int i = 0; i < nItems; ++i) {
-        choices_add(&choices, strdup(String_val(Field(vHaystack, i))));
+        items[i] = strdup(String_val(Field(vHaystack, i)));
+        choices_add(&choices, items[i]);
     }
 
     char *needle = strdup(String_val(vNeedle));
@@ -146,6 +148,10 @@ CAMLprim value fzy_search_for_item_in_array(value vHaystack, value vNeedle, valu
 
     free(needle);
     choices_destroy(&choices);
+
+    for (int i = 0; i < nItems; ++i) {
+        free(items[i]);
+    }
 
     CAMLreturn(return_array);
 }
