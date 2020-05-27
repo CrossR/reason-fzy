@@ -77,19 +77,9 @@ CAMLprim value format_return_item(choices_t choices, const int itemNum, const ch
     CAMLreturn(match_item);
 }
 
-void *safe_realloc(void *buffer, size_t size) {
-    buffer = realloc(buffer, size);
-    if (!buffer) {
-        fprintf(stderr, "Error: Can't allocate memory (%zu bytes)\n", size);
-        abort();
-    }
-
-    return buffer;
-}
-
 CAMLprim value fzy_search_for_item_in_list(value vItems, value vQuery, value vSort) {
     CAMLparam3(vItems, vQuery, vSort);
-    CAMLlocal3(head, cons, return_list);
+    CAMLlocal4(head, itemsCopy, cons, return_list);
 
     return_list = Val_emptylist;
 
@@ -100,21 +90,30 @@ CAMLprim value fzy_search_for_item_in_list(value vItems, value vQuery, value vSo
     int sorted = Bool_val(vSort) ? 1 : 0;
     choices_t choices = fzy_init(sorted);
 
-    int currentCapacity = 128;
+    // Store a copy of the head of the list, so we can reset back.
+    itemsCopy = vItems;
+    int numItems = 0;
+
+    // Since we can't get the length of the list directly, run through it once
+    // to get the size, so we can do a single allocation and store the results
+    // in a subsequent pass.
+    //
+    // Benchmarking put this at the same speed as doing dynamic reallocs whilst
+    // running through the list...but the code is cleaner so.
+    while (vItems != Val_emptylist) {
+        head = Field(vItems, 0);
+        vItems = Field(vItems, 1);
+        ++numItems;
+    }
+
     int currentItem = 0;
-    char **items;
-    items = safe_realloc(items, currentCapacity * sizeof(const char *));
+    char *items[numItems];
+
+    // Return vItems back to the start.
+    vItems = itemsCopy;
 
     // Lists here are represented as [0, [1, [2, []]]]
     while (vItems != Val_emptylist) {
-
-        // Since we don't know how many items there are for a list, we may need
-        // a resize. currentItem - 1 is the current capacity.
-        if (currentItem >= currentCapacity) {
-            items = safe_realloc(items, (currentCapacity * 2) * sizeof(const char *));
-            currentCapacity *= 2;
-        }
-
         head = Field(vItems, 0);
         items[currentItem] = strdup(String_val(head));
         choices_add(&choices, items[currentItem]);
@@ -141,7 +140,6 @@ CAMLprim value fzy_search_for_item_in_list(value vItems, value vQuery, value vSo
     for (int i = 0; i < currentItem; ++i) {
         free(items[i]);
     }
-    free(items);
 
     CAMLreturn(return_list);
 }
