@@ -24,7 +24,7 @@ int get_core_count() {
 #if defined(__APPLE__)
     int core_count = 1;
     size_t size = sizeof(core_count);
-    sysctlbyname("hw.logicalcpu", &core_count, &size, NULL, 0 );
+    sysctlbyname("hw.logicalcpu", &core_count, &size, NULL, 0);
     return core_count;
 #elif defined(_WIN32)
     SYSTEM_INFO siSysInfo;
@@ -77,6 +77,16 @@ CAMLprim value format_return_item(choices_t choices, const int itemNum, const ch
     CAMLreturn(match_item);
 }
 
+void *safe_realloc(void *buffer, size_t size) {
+    buffer = realloc(buffer, size);
+    if (!buffer) {
+        fprintf(stderr, "Error: Can't allocate memory (%zu bytes)\n", size);
+        abort();
+    }
+
+    return buffer;
+}
+
 CAMLprim value fzy_search_for_item_in_list(value vItems, value vQuery, value vSort) {
     CAMLparam3(vItems, vQuery, vSort);
     CAMLlocal3(head, cons, return_list);
@@ -90,14 +100,29 @@ CAMLprim value fzy_search_for_item_in_list(value vItems, value vQuery, value vSo
     int sorted = Bool_val(vSort) ? 1 : 0;
     choices_t choices = fzy_init(sorted);
 
+    int itemCapacity = 100;
+    int currentItem = 0;
+    char **items;
+    items = safe_realloc(items, itemCapacity * sizeof(const char *));
+
     // Lists here are represented as [0, [1, [2, []]]]
-    while(vItems != Val_emptylist) {
+    while (vItems != Val_emptylist) {
+
+        // Since we don't know how many items there are for a list, we may need
+        // a resize. currentItem - 1 is the current capacity.
+        if (currentItem >= itemCapacity) {
+            itemCapacity += 100;
+            items = safe_realloc(items, itemCapacity * sizeof(const char *));
+        }
+
         head = Field(vItems, 0);
-        choices_add(&choices, String_val(head));
+        items[currentItem] = strdup(String_val(head));
+        choices_add(&choices, items[currentItem]);
         vItems = Field(vItems, 1);
+        ++currentItem;
     }
 
-    const char *query = String_val(vQuery);
+    char *query = strdup(String_val(vQuery));
     choices_search(&choices, query);
 
     const int numChoices = choices_available(&choices);
@@ -110,7 +135,12 @@ CAMLprim value fzy_search_for_item_in_list(value vItems, value vQuery, value vSo
         return_list = cons;
     }
 
+    free(query);
     choices_destroy(&choices);
+
+    for (int i = 0; i < currentItem; ++i) {
+        free(items[i]);
+    }
 
     CAMLreturn(return_list);
 }
@@ -155,4 +185,3 @@ CAMLprim value fzy_search_for_item_in_array(value vItems, value vQuery, value vS
 
     CAMLreturn(return_array);
 }
-
