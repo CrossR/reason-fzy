@@ -49,27 +49,27 @@ choices_t fzy_init(int sorted) {
     return choices;
 }
 
-CAMLprim value format_return_item(choices_t choices, const int i, const char *needle) {
+CAMLprim value format_return_item(choices_t choices, const int itemNum, const char *query) {
     CAMLparam0();
     CAMLlocal2(match_item, matched_chars);
 
-    const int needleSize = strlen(needle);
-    const char *matchTerm = choices_get(&choices, i);
-    const int index = choices_getindex(&choices, i);
+    const int queryLen = strlen(query);
+    const char *itemString = choices_get(&choices, itemNum);
+    const int index = choices_getindex(&choices, itemNum);
 
-    size_t positions[needleSize];
-    for (int i = 0; i < needleSize; i++)
+    size_t positions[queryLen];
+    for (int i = 0; i < queryLen; i++)
         positions[i] = -1;
 
-    const double score = match_positions(needle, matchTerm, &positions[0]);
+    const double score = match_positions(query, itemString, &positions[0]);
 
     match_item = caml_alloc(4, 0);
-    matched_chars = caml_alloc(needleSize, 0);
+    matched_chars = caml_alloc(queryLen, 0);
 
-    for (int i = 0; i < needleSize; ++i)
+    for (int i = 0; i < queryLen; ++i)
         Store_field(matched_chars, i, Val_int(positions[i]));
 
-    Store_field(match_item, 0, caml_copy_string(matchTerm));
+    Store_field(match_item, 0, caml_copy_string(itemString));
     Store_field(match_item, 1, caml_copy_double(score));
     Store_field(match_item, 2, Val_int(index));
     Store_field(match_item, 3, matched_chars);
@@ -77,13 +77,13 @@ CAMLprim value format_return_item(choices_t choices, const int i, const char *ne
     CAMLreturn(match_item);
 }
 
-CAMLprim value fzy_search_for_item_in_list(value vHaystack, value vNeedle, value vSort) {
-    CAMLparam3(vHaystack, vNeedle, vSort);
+CAMLprim value fzy_search_for_item_in_list(value vItems, value vQuery, value vSort) {
+    CAMLparam3(vItems, vQuery, vSort);
     CAMLlocal3(head, cons, return_list);
 
     return_list = Val_emptylist;
 
-    if (vHaystack == Val_emptylist) {
+    if (vItems == Val_emptylist) {
         CAMLreturn(return_list);
     }
 
@@ -91,21 +91,21 @@ CAMLprim value fzy_search_for_item_in_list(value vHaystack, value vNeedle, value
     choices_t choices = fzy_init(sorted);
 
     // Lists here are represented as [0, [1, [2, []]]]
-    while(vHaystack != Val_emptylist) {
-        head = Field(vHaystack, 0);
+    while(vItems != Val_emptylist) {
+        head = Field(vItems, 0);
         choices_add(&choices, String_val(head));
-        vHaystack = Field(vHaystack, 1);
+        vItems = Field(vItems, 1);
     }
 
-    const char *needle = String_val(vNeedle);
-    choices_search(&choices, needle);
+    const char *query = String_val(vQuery);
+    choices_search(&choices, query);
 
     const int numChoices = choices_available(&choices);
 
     // Fzy only stores scores for those with an actual match.
     for (int i = numChoices - 1; i >= 0; --i) {
         cons = caml_alloc(2, 0);
-        Store_field(cons, 0, format_return_item(choices, i, needle));
+        Store_field(cons, 0, format_return_item(choices, i, query));
         Store_field(cons, 1, return_list);
         return_list = cons;
     }
@@ -115,38 +115,38 @@ CAMLprim value fzy_search_for_item_in_list(value vHaystack, value vNeedle, value
     CAMLreturn(return_list);
 }
 
-CAMLprim value fzy_search_for_item_in_array(value vHaystack, value vNeedle, value vSort) {
-    CAMLparam3(vHaystack, vNeedle, vSort);
+CAMLprim value fzy_search_for_item_in_array(value vItems, value vQuery, value vSort) {
+    CAMLparam3(vItems, vQuery, vSort);
     CAMLlocal1(return_array);
 
     return_array = Val_emptylist;
 
-    if (vHaystack == Val_emptylist) {
+    if (vItems == Val_emptylist) {
         CAMLreturn(return_array);
     }
 
     int sorted = Bool_val(vSort) ? 1 : 0;
     choices_t choices = fzy_init(sorted);
-    const int nItems = Wosize_val(vHaystack);
+    const int nItems = Wosize_val(vItems);
     char *items[nItems];
 
     for (int i = 0; i < nItems; ++i) {
-        items[i] = strdup(String_val(Field(vHaystack, i)));
+        items[i] = strdup(String_val(Field(vItems, i)));
         choices_add(&choices, items[i]);
     }
 
-    char *needle = strdup(String_val(vNeedle));
-    choices_search(&choices, needle);
+    char *query = strdup(String_val(vQuery));
+    choices_search(&choices, query);
 
     int numChoices = choices_available(&choices);
     return_array = caml_alloc(numChoices, 0);
 
     // Fzy only stores scores for those with an actual match.
     for (int i = 0; i < numChoices; ++i) {
-        Store_field(return_array, i, format_return_item(choices, i, needle));
+        Store_field(return_array, i, format_return_item(choices, i, query));
     }
 
-    free(needle);
+    free(query);
     choices_destroy(&choices);
 
     for (int i = 0; i < nItems; ++i) {
