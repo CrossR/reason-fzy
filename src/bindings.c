@@ -100,19 +100,19 @@ CAMLprim value fzy_search_for_item_in_list(value vItems, value vQuery, value vSo
     int sorted = Bool_val(vSort) ? 1 : 0;
     choices_t choices = fzy_init(sorted);
 
-    int itemCapacity = 100;
+    int currentCapacity = 128;
     int currentItem = 0;
     char **items;
-    items = safe_realloc(items, itemCapacity * sizeof(const char *));
+    items = safe_realloc(items, currentCapacity * sizeof(const char *));
 
     // Lists here are represented as [0, [1, [2, []]]]
     while (vItems != Val_emptylist) {
 
         // Since we don't know how many items there are for a list, we may need
         // a resize. currentItem - 1 is the current capacity.
-        if (currentItem >= itemCapacity) {
-            itemCapacity += 100;
-            items = safe_realloc(items, itemCapacity * sizeof(const char *));
+        if (currentItem >= currentCapacity) {
+            items = safe_realloc(items, (currentCapacity * 2) * sizeof(const char *));
+            currentCapacity *= 2;
         }
 
         head = Field(vItems, 0);
@@ -141,6 +141,7 @@ CAMLprim value fzy_search_for_item_in_list(value vItems, value vQuery, value vSo
     for (int i = 0; i < currentItem; ++i) {
         free(items[i]);
     }
+    free(items);
 
     CAMLreturn(return_list);
 }
