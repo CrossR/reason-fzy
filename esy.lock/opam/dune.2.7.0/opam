@@ -29,6 +29,7 @@ conflicts: [
   "dune-configurator" {< "2.3.0"}
   "odoc" {< "1.3.0"}
   "dune-release" {< "1.3.0"}
+  "js_of_ocaml-compiler" {< "3.6.0"}
   "jbuilder" {= "transition"}
 ]
 dev-repo: "git+https://github.com/ocaml/dune.git"
@@ -41,14 +42,14 @@ build: [
 depends: [
   # Please keep the lower bound in sync with .travis.yml, dune-project
   # and min_ocaml_version in bootstrap.ml
-  ("ocaml" {>= "4.07"} | ("ocaml" {< "4.07~~"} & "ocamlfind-secondary"))
+  ("ocaml" {>= "4.08"} | ("ocaml" {< "4.08~~"} & "ocamlfind-secondary"))
   "base-unix"
   "base-threads"
 ]
 url {
-  src: "https://github.com/ocaml/dune/releases/download/2.5.1/dune-2.5.1.tbz"
+  src: "https://github.com/ocaml/dune/releases/download/2.7.0/dune-2.7.0.tbz"
   checksum: [
-    "sha256=8f77d3a87f208e0d7cccaa1c48c4bb1bb87d62d07c3f25e9b8ba298e028ce52b"
-    "sha512=f209f12ced10c1abf8782bdb0143f4cec77795f7174d2cc75130afb1e01550b01f2f77b9e3ec4888efdad83d2f9878d179b39126f824f4e522f3ef4da34bf27e"
+    "sha256=b417ca85bdce4171e71255be4a9c5a7572646cb1dcb221bba3757dc6ac8f1c15"
+    "sha512=5e5b649b1a16747bf2a0bf093ecf2dc701b2713c166e3d25731422bba2b94e807ded2242ee0e750e2264d21a03c966c24f4812c6d5ed690bba60543db7303f89"
   ]
 }
