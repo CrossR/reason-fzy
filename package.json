@@ -19,7 +19,7 @@
     "@opam/reason": "^3.6.0",
     "refmterr": "*",
     "ocaml": ">=4.7.0",
-    "esy-fzy": "github:CrossR/esy-fzy#c42c543"
+    "esy-fzy": "github:CrossR/esy-fzy#8176cee"
   },
   "devDependencies": {
     "ocaml": "~4.9.0"
