@@ -4,7 +4,8 @@
   "description": "Reason bindings for fzy",
   "license": "MIT",
   "scripts": {
-    "format": "esy dune build @fmt --auto-promote"
+    "format": "esy dune build @fmt --auto-promote",
+    "test": "esy b dune runtest"
   },
   "esy": {
     "build": ["refmterr dune build -p Fzy"],
@@ -16,10 +17,11 @@
   "dependencies": {
     "@opam/dune": "*",
     "@opam/dune-configurator": "*",
+    "@opam/ppx_inline_test": "v0.14.1",
     "@opam/reason": "^3.6.0",
     "refmterr": "*",
     "ocaml": ">=4.7.0",
-    "esy-fzy": "github:CrossR/esy-fzy#8176cee"
+    "esy-fzy": "github:bryphe/esy-fzy#301dbf6"
   },
   "devDependencies": {
     "ocaml": "~4.9.0"
