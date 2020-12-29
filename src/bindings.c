@@ -16,6 +16,16 @@
 
 #ifdef _WIN32
 #include <windows.h>
+
+// strndup is not available on windows
+char *strndup( const char *sz, size_t len)
+{
+    char *ret= (char*)malloc(len+1);
+    memcpy(ret, sz, len);
+    ret[len] = 0;
+    return ret;
+};
+
 #endif
 
 #include <choices.h>
