@@ -20,7 +20,7 @@ let get_os =
 
 let fzyIncludePath = Sys.getenv "FZY_INCLUDE_PATH"
 let fzyLibPath = Sys.getenv "FZY_LIB_PATH"
-let c_flags = ["-I"; "'" ^ fzyIncludePath ^ "'"; "-I"; "'" ^ fzyLibPath ^ "'" ]
+let c_flags = ["-I"; fzyIncludePath ]
 
 let _ = print_endline (fzyIncludePath)
 let _ = print_endline (fzyLibPath)
