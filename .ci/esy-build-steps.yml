@@ -14,3 +14,7 @@ steps:
     displayName: 'esy build --verbosity=debug'
     env:
       ESY__LOG: 'debug'
+  - script: esy test
+    displayName: 'esy test --verbosity=debug'
+    env:
+      ESY__LOG: 'debug'
