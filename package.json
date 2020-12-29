@@ -9,7 +9,9 @@
   },
   "esy": {
     "build": ["refmterr dune build -p Fzy"],
-    "buildsInSource": "_build",
+    "buildEnv": {
+      "PATH": "#{os == 'windows' ? '/usr/x86_64-w64-mingw32/sys-root/mingw/bin;$PATH' : '$PATH'}"
+    },
     "install": [
         "esy-installer Fzy.install"
     ]

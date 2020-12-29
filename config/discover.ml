@@ -28,18 +28,18 @@ let _ = print_endline (fzyLibPath)
 let ccopt s = ["-ccopt"; s]
 let cclib s = ["-cclib"; s]
 
-let libPath = "\"" ^ "-L" ^ fzyLibPath ^ "\""
+let libPath = "-L" ^ fzyLibPath
 
-let flags =
-    match get_os with
-    | Windows -> []
+let flags = 
+        match get_os with
+        | Windows -> []
         @ ccopt(libPath)
+        @ cclib("-lfzy")
         @ cclib("-lpthread")
-        @ cclib("-lfzy")
-    | _ -> []
+        | _ -> []
         @ ccopt(libPath)
-        @ cclib("-pthread")
         @ cclib("-lfzy")
+        @ cclib("-pthread")
 ;;
 
 let flags_with_sanitize =
