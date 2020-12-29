@@ -16,7 +16,7 @@ let fzySearchArray = (haystack, needle, ~sorted=true, ()) =>
 let fzySearchList = (haystack, needle, ~sorted=true, ()) =>
   _searchInList(haystack, needle, sorted);
 
-let%test_module "fzySearchList " =
+let%test_module "fzy searching" =
   (module
    {
      type expectedResult = {
