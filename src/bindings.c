@@ -16,9 +16,20 @@
 
 #ifdef _WIN32
 #include <windows.h>
+
+// strndup is not available on windows
+char *strndup( const char *sz, size_t len)
+{
+    char *ret= (char*)malloc(len+1);
+    memcpy(ret, sz, len);
+    ret[len] = 0;
+    return ret;
+};
+
 #endif
 
 #include <choices.h>
+#include <match.h>
 
 int get_core_count() {
 #if defined(__APPLE__)
@@ -115,7 +126,12 @@ CAMLprim value fzy_search_for_item_in_list(value vItems, value vQuery, value vSo
     // Lists here are represented as [0, [1, [2, []]]]
     while (vItems != Val_emptylist) {
         head = Field(vItems, 0);
-        items[currentItem] = strdup(String_val(head));
+        const char* str = String_val(head);
+        int len = strlen(str);
+        if (len > 1024 /* MATCH_MAX_LEN */) {
+            len = 1024 /* MATCH_MAX_LEN */;
+        }
+        items[currentItem] = strndup(str, len);
         choices_add(&choices, items[currentItem]);
         vItems = Field(vItems, 1);
         ++currentItem;
@@ -160,7 +176,12 @@ CAMLprim value fzy_search_for_item_in_array(value vItems, value vQuery, value vS
     char *items[nItems];
 
     for (int i = 0; i < nItems; ++i) {
-        items[i] = strdup(String_val(Field(vItems, i)));
+        const char* str = String_val(Field(vItems, i));
+        int len = strlen(str);
+        if (len > 1024 /* MATCH_MAX_LEN */) {
+            len = 1024 /* MATCH_MAX_LEN */;
+        }
+        items[i] = strndup(str, len);
         choices_add(&choices, items[i]);
     }
 
