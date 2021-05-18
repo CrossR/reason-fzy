@@ -8,7 +8,7 @@
     "test": "esy b dune runtest"
   },
   "esy": {
-    "build": ["refmterr dune build -p Fzy"],
+    "build": ["dune build -p Fzy"],
     "buildEnv": {
       "PATH": "#{os == 'windows' ? '/usr/x86_64-w64-mingw32/sys-root/mingw/bin;$PATH' : '$PATH'}"
     },
@@ -21,7 +21,6 @@
     "@opam/dune-configurator": "*",
     "@opam/ppx_inline_test": "v0.14.1",
     "@opam/reason": "^3.6.0",
-    "refmterr": "*",
     "ocaml": ">=4.7.0",
     "esy-fzy": "github:bryphe/esy-fzy#301dbf6"
   },
